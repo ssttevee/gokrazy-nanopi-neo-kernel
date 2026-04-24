@@ -390,8 +390,6 @@ kernel/net/netfilter/nft_ct.ko
 kernel/net/netfilter/nft_nat.ko
 kernel/net/netfilter/nft_masq.ko
 kernel/net/netfilter/nft_chain_nat.ko
-kernel/net/netfilter/x_tables.ko
-kernel/net/netfilter/xt_tcpudp.ko
 kernel/net/ipv4/ip_tunnel.ko
 kernel/net/ipv4/tunnel4.ko
 kernel/net/ipv4/netfilter/nf_defrag_ipv4.ko

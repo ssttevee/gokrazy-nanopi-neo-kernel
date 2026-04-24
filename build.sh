@@ -13,6 +13,10 @@ export ARCH=arm
 wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.14.8.tar.xz
 tar xJf linux-6.14.8.tar.xz
 
+# Patch the device tree model string to match the gokrazy deviceconfig name so updates work
+# See https://github.com/gokrazy/internal/blob/00a332bd5e47122e58c6fbd8b86082ad3572f6cc/deviceconfig/config.go#L63
+sed -i 's/model = "FriendlyARM NanoPi NEO";/model = "FriendlyElec NanoPi Neo";/' linux-6.14.8/arch/arm/boot/dts/allwinner/sun8i-h3-nanopi-neo.dts
+
 make -C linux-6.14.8 -j$(nproc) sunxi_defconfig
 make -C linux-6.14.8 -j$(nproc) mod2noconfig
 cat <<CFG >> linux-6.14.8/.config
