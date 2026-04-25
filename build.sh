@@ -2,7 +2,7 @@ cat <<EOF | time docker run --platform linux/arm -v "$PWD:/tmp/buildresult" -i a
 set -ex
 
 
-apk add alpine-sdk xz flex bison gmp-dev mpc1-dev mpfr-dev python3 py3-setuptools swig python3-dev openssl-dev gnutls-dev u-boot-tools
+apk add alpine-sdk xz flex bison gmp-dev mpc1-dev mpfr-dev python3 py3-setuptools swig python3-dev openssl-dev gnutls-dev u-boot-tools perl bash
 
 # this makes compile fail when on wrong arch
 export ARCH=arm
@@ -10,16 +10,16 @@ export ARCH=arm
 
 
 # compile kernel
-wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.14.8.tar.xz
-tar xJf linux-6.14.8.tar.xz
+wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.18.24.tar.xz
+tar xJf linux-6.18.24.tar.xz
 
 # Patch the device tree model string to match the gokrazy deviceconfig name so updates work
 # See https://github.com/gokrazy/internal/blob/00a332bd5e47122e58c6fbd8b86082ad3572f6cc/deviceconfig/config.go#L63
-sed -i 's/model = "FriendlyARM NanoPi NEO";/model = "FriendlyElec NanoPi Neo";/' linux-6.14.8/arch/arm/boot/dts/allwinner/sun8i-h3-nanopi-neo.dts
+sed -i 's/model = "FriendlyARM NanoPi NEO";/model = "FriendlyElec NanoPi Neo";/' linux-6.18.24/arch/arm/boot/dts/allwinner/sun8i-h3-nanopi-neo.dts
 
-make -C linux-6.14.8 -j$(nproc) sunxi_defconfig
-make -C linux-6.14.8 -j$(nproc) mod2noconfig
-cat <<CFG >> linux-6.14.8/.config
+make -C linux-6.18.24 -j$(nproc) sunxi_defconfig
+make -C linux-6.18.24 -j$(nproc) mod2noconfig
+cat <<CFG >> linux-6.18.24/.config
 CONFIG_SQUASHFS=y
 CONFIG_TUN=y
 CONFIG_IPV6=y
@@ -38,21 +38,21 @@ CONFIG_NFT_CT=y
 CONFIG_NFT_COUNTER=y
 CONFIG_NFT_META=y
 CFG
-make -C linux-6.14.8 olddefconfig
-make -C linux-6.14.8 -j$(nproc) zImage dtbs modules
-make -C linux-6.14.8 modules_install INSTALL_MOD_PATH=/tmp/buildresult
-cp linux-6.14.8/arch/arm/boot/dts/allwinner/sun8i-h3-nanopi-neo.dtb /tmp/buildresult/
-cp linux-6.14.8/arch/arm/boot/zImage /tmp/buildresult/vmlinuz
+make -C linux-6.18.24 olddefconfig
+make -C linux-6.18.24 -j$(nproc) zImage dtbs modules
+make -C linux-6.18.24 modules_install INSTALL_MOD_PATH=/tmp/buildresult
+cp linux-6.18.24/arch/arm/boot/dts/allwinner/sun8i-h3-nanopi-neo.dtb /tmp/buildresult/
+cp linux-6.18.24/arch/arm/boot/zImage /tmp/buildresult/vmlinuz
 
 
 
 # compile u-boot
-wget https://ftp.denx.de/pub/u-boot/u-boot-2025.04.tar.bz2
-tar xf u-boot-2025.04.tar.bz2
+wget https://ftp.denx.de/pub/u-boot/u-boot-2026.04.tar.bz2
+tar xf u-boot-2026.04.tar.bz2
 
-make -C u-boot-2025.04 nanopi_neo_defconfig
-make -C u-boot-2025.04 -j$(nproc)
-cp u-boot-2025.04/u-boot-sunxi-with-spl.bin /tmp/buildresult/
+make -C u-boot-2026.04 nanopi_neo_defconfig
+make -C u-boot-2026.04 -j$(nproc)
+cp u-boot-2026.04/u-boot-sunxi-with-spl.bin /tmp/buildresult/
 
 
 
@@ -61,4 +61,3 @@ mkimage -C none -A arm -T script -d /tmp/buildresult/boot.cmd /tmp/buildresult/b
 
 
 EOF
-
